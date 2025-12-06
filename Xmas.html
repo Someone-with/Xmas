@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Christmas Elf RPG</title>
     <style>
+        /* Full holiday background */
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            background-color: #0a0a2a; /* Dark night sky */
+            background-color: #0a1a3a;
             overflow: hidden;
+            height: 100vh;
         }
 
-        /* Animated holiday background: Snowflakes and twinkling lights */
         .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.5"/></svg>') repeat;
-            animation: snowfall 10s linear infinite;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.6"/></svg>') repeat;
+            animation: snowfall 12s linear infinite;
             z-index: -1;
         }
 
@@ -31,112 +32,208 @@
             100% { background-position: 0 100px; }
         }
 
-        /* Twinkling lights */
         .lights {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(255,255,0,0.1) 0%, transparent 70%);
-            animation: twinkle 2s infinite alternate;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 0, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(0, 255, 0, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
+            animation: twinkle 3s infinite alternate;
         }
 
         @keyframes twinkle {
-            0% { opacity: 0.5; }
+            0% { opacity: 0.7; }
             100% { opacity: 1; }
         }
 
+        /* Screens */
         #start-screen, #game-screen {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            text-align: center;
-            width: 80%;
+            width: 90%;
             max-width: 600px;
-            padding: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        #chat-log {
-            height: 400px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 5px;
+        h1 {
+            margin: 0 0 15px;
+            font-size: 2em;
+            color: #ffcc00;
+            text-shadow: 0 0 10px #ff0000;
         }
 
-        #user-input {
-            width: 80%;
-            padding: 10px;
-            margin-right: 10px;
+        p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+            color: #aaffaa;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 2px solid #00cc00;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        input[readonly] {
+            background: rgba(100, 100, 100, 0.3);
+            color: #ffff99;
+            font-size: 12px;
         }
 
         button {
-            padding: 10px 20px;
-            background: #ff0000;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #cc0000;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 1.1em;
             cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: 0.3s;
         }
 
         button:hover {
-            background: #cc0000;
+            background: #ff0000;
+            transform: scale(1.05);
+        }
+
+        /* Game screen */
+        #chat-log {
+            height: 380px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid #00cc00;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        #user-input {
+            width: 70%;
+            padding: 12px;
+            font-size: 16px;
+        }
+
+        #send-btn {
+            width: 25%;
+            padding: 12px;
+            font-size: 16px;
         }
 
         .message {
-            margin-bottom: 10px;
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
         }
 
         .user-message {
+            background: rgba(0, 200, 0, 0.3);
+            margin-left: auto;
             text-align: right;
-            color: #00ff00;
+            border-bottom-right-radius: 0;
         }
 
         .ai-message {
+            background: rgba(0, 100, 200, 0.3);
+            margin-right: auto;
             text-align: left;
-            color: #ffffff;
+            border-bottom-left-radius: 0;
+        }
+
+        .error {
+            background: rgba(200, 0, 0, 0.5) !important;
+            color: #ffff00;
         }
 
         #stats {
-            margin-top: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            font-weight: bold;
+            color: #ffcc00;
+        }
+
+        small {
             font-size: 0.8em;
+            color: #aaaa00;
+        }
+
+        a {
+            color: #00ccff;
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
+
+    <!-- Animated Background -->
     <div class="background">
         <div class="lights"></div>
     </div>
 
+    <!-- Start Screen -->
     <div id="start-screen">
         <h1>Christmas Elf RPG</h1>
-        <p>Welcome to the North Pole! It's Christmas Eve, and you're an elf behind on gift production. Help Santa by completing quests and tasks to make all the gifts in time!</p>
-        <label for="elf-name">Enter your Elf Name:</label><br>
-        <input type="text" id="elf-name" placeholder="Elf Name"><br><br>
-        <label for="api-key">Enter your Google Gemini API Key:</label><br>
-        <input type="text" id="api-key" placeholder="API Key"><br><br>
+        <p>It's Christmas Eve at the North Pole, and you're <strong>way behind schedule</strong>! Santa needs <strong>100 gifts</strong> ready before dawn. Can you save Christmas?</p>
+
+        <label for="elf-name">Your Elf Name:</label>
+        <input type="text" id="elf-name" placeholder="e.g. Sparkle, Jingle, Frosty">
+
+        <label for="api-key">Google Gemini API Key:</label>
+        <input type="text" id="api-key" placeholder="Get free at aistudio.google.com">
+
+        <label for="proxy-url">CORS Proxy URL (do not change):</label>
+        <input type="text" id="proxy-url" readonly 
+               value="https://api.allorigins.win/raw?url=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent">
+
+        <p><small><strong>Tip:</strong> Get your API key at <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></small></p>
+
         <button onclick="startGame()">Start Adventure</button>
     </div>
 
+    <!-- Game Screen -->
     <div id="game-screen" style="display: none;">
         <div id="chat-log"></div>
-        <input type="text" id="user-input" placeholder="What do you do next?">
-        <button onclick="sendMessage()">Send</button>
-        <div id="stats">Stats: Loading...</div>
+        <input type="text" id="user-input" placeholder="What do you do next?" onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+        <div id="stats">Loading stats...</div>
     </div>
 
     <script>
+        // Game state
         let elfName = '';
         let apiKey = '';
+        let proxyUrl = '';
         let conversationHistory = [];
         let gameState = {
             giftsMade: 0,
-            requiredGifts: 100, // Example goal
+            requiredGifts: 100,
             stats: {
                 energy: 100,
                 skill: 1,
@@ -144,9 +241,11 @@
             }
         };
 
+        // Start the game
         function startGame() {
             elfName = document.getElementById('elf-name').value.trim();
             apiKey = document.getElementById('api-key').value.trim();
+            proxyUrl = document.getElementById('proxy-url').value.trim();
 
             if (!elfName || !apiKey) {
                 alert('Please enter your elf name and API key!');
@@ -156,104 +255,133 @@
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
 
-            // Initial prompt to Gemini
-            const initialPrompt = `You are the Game Master for a text-based Christmas Elf RPG. The player is an elf named ${elfName} on Christmas Eve at the North Pole. They are behind schedule and need to make ${gameState.requiredGifts} gifts before dawn to save Christmas. The game involves quests, storylines, challenges, and tasks like crafting, gathering materials, helping other elves, fighting minor obstacles (like mischievous reindeer or toy malfunctions), and more. 
+            // Initial system prompt
+            const initialPrompt = `You are the Game Master for a text-based Christmas Elf RPG. 
+The player is an elf named ${elfName} at the North Pole on Christmas Eve. 
+They are behind schedule and must produce ${gameState.requiredGifts} gifts before Santa leaves.
 
-Track and update these stats after each response: Energy (starts at 100, decreases with actions, rest to recover), Skill (starts at 1, increases with successful tasks), Luck (starts at 1, increases with lucky events). Also track gifts made (starts at 0, goal ${gameState.requiredGifts}).
+Track these stats:
+- Energy (starts at 100, decreases with actions, recover by resting)
+- Skill (starts at 1, increases with successful crafting/quests)
+- Luck (starts at 1, increases with lucky events)
 
-Respond only in narrative text, describing the scene, outcomes, and presenting choices or asking for next action. End each response with current stats and gifts progress, like: 
+Also track: Gifts Made (0 / ${gameState.requiredGifts})
+
+Respond in immersive, holiday-themed narrative. Present choices, challenges, and quests. 
+Keep responses under 200 words. End EVERY reply with:
+
 [Stats: Energy: X, Skill: Y, Luck: Z | Gifts Made: A/${gameState.requiredGifts}]
 
-If gifts reach ${gameState.requiredGifts}, end the game with a victory message. Make it fun, holiday-themed, and engaging. Keep responses concise (under 200 words).
+If Gifts Made reaches ${gameState.requiredGifts}, end with a victory message.
 
-Start the game: Introduce the scenario and first quest.`;
+Begin the adventure now.`;
 
-            conversationHistory.push({ role: 'user', parts: [{ text: initialPrompt }] });
+            conversationHistory = [
+                { role: 'user', parts: [{ text: initialPrompt }] }
+            ];
+
             callGemini();
         }
 
+        // Send player message
         function sendMessage() {
-            const userInput = document.getElementById('user-input').value.trim();
-            if (!userInput) return;
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            if (!message) return;
 
-            appendMessage('You: ' + userInput, 'user-message');
-            document.getElementById('user-input').value = '';
+            appendMessage('You: ' + message, 'user-message');
+            input.value = '';
 
-            // Add to history
-            conversationHistory.push({ role: 'user', parts: [{ text: userInput }] });
-
+            conversationHistory.push({ role: 'user', parts: [{ text: message }] });
             callGemini();
         }
 
+        // Call Gemini via proxy
         function callGemini() {
-            appendMessage('Thinking...', 'ai-message'); // Placeholder
+            appendMessage('Thinking...', 'ai-message');
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-            const body = {
-                contents: conversationHistory,
-                generationConfig: {
-                    temperature: 0.9,
-                    topK: 1,
-                    topP: 1,
-                    maxOutputTokens: 2048,
-                },
-                safetySettings: [
-                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
-                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
-                ]
-            };
+            const url = proxyUrl + `&key=${apiKey}`;
 
             fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: conversationHistory,
+                    generationConfig: {
+                        temperature: 0.9,
+                        maxOutputTokens: 2048
+                    }
+                })
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                return response.json();
+            })
             .then(data => {
                 const aiResponse = data.candidates[0].content.parts[0].text;
-                // Remove placeholder
-                const chatLog = document.getElementById('chat-log');
-                chatLog.removeChild(chatLog.lastChild);
-
+                removeThinking();
                 appendMessage(aiResponse, 'ai-message');
-
-                // Add to history
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
 
-                // Parse and update game state (simple regex for stats)
+                // Parse stats
                 const statsMatch = aiResponse.match(/\[Stats: Energy: (\d+), Skill: (\d+), Luck: (\d+) \| Gifts Made: (\d+)\/\d+\]/);
                 if (statsMatch) {
                     gameState.stats.energy = parseInt(statsMatch[1]);
                     gameState.stats.skill = parseInt(statsMatch[2]);
                     gameState.stats.luck = parseInt(statsMatch[3]);
                     gameState.giftsMade = parseInt(statsMatch[4]);
-                    updateStats();
+                    updateStatsDisplay();
 
                     if (gameState.giftsMade >= gameState.requiredGifts) {
-                        appendMessage('Congratulations! All gifts are made. Christmas is saved!', 'ai-message');
-                        document.getElementById('user-input').disabled = true;
-                        document.querySelector('#game-screen button').disabled = true;
+                        setTimeout(() => {
+                            appendMessage('🎄🎅 CHRISTMAS IS SAVED! All gifts are ready! 🎁✨', 'ai-message');
+                            document.getElementById('user-input').disabled = true;
+                            document.getElementById('send-btn').disabled = true;
+                        }, 500);
                     }
                 }
             })
             .catch(error => {
-                appendMessage('Error: Could not connect to Gemini. Check API key or network.', 'ai-message');
+                removeThinking();
+                let msg = 'Error: Could not reach Gemini. ';
+                if (error.message.includes('401') || error.message.includes('400')) {
+                    msg += 'Invalid API key. Check at aistudio.google.com';
+                } else if (error.message.includes('429')) {
+                    msg += 'Too many requests. Wait a minute.';
+                } else if (error.name === 'TypeError') {
+                    msg += 'Check internet or open in a real browser.';
+                } else {
+                    msg += error.message;
+                }
+                appendMessage(msg, 'ai-message error');
                 console.error(error);
             });
         }
 
+        // UI Helpers
         function appendMessage(text, className) {
             const div = document.createElement('div');
             div.className = 'message ' + className;
             div.textContent = text;
             document.getElementById('chat-log').appendChild(div);
-            div.scrollIntoView();
+            div.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function updateStats() {
-            document.getElementById('stats').textContent = `Stats: Energy: ${gameState.stats.energy}, Skill: ${gameState.stats.skill}, Luck: ${gameState.stats.luck} | Gifts Made: ${gameState.giftsMade}/${gameState.requiredGifts}`;
+        function removeThinking() {
+            const log = document.getElementById('chat-log');
+            const last = log.lastChild;
+            if (last && last.textContent === 'Thinking...') {
+                log.removeChild(last);
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('stats').textContent = 
+                `Energy: ${gameState.stats.energy} | Skill: ${gameState.stats.skill} | Luck: ${gameState.stats.luck} | Gifts: ${gameState.giftsMade}/${gameState.requiredGifts}`;
         }
     </script>
 </body>
