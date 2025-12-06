@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Christmas Elf RPG</title>
+    <title>Christmas Elf RPG - Fixed</title>
     <style>
         /* Full holiday background */
         body {
@@ -101,7 +101,7 @@
         }
 
         button {
-            margin-top: 20px;
+            margin: 10px 5px;
             padding: 12px 30px;
             background: #cc0000;
             color: white;
@@ -116,6 +116,14 @@
         button:hover {
             background: #ff0000;
             transform: scale(1.05);
+        }
+
+        #test-btn {
+            background: #00aa00;
+        }
+
+        #test-btn:hover {
+            background: #00cc00;
         }
 
         /* Game screen */
@@ -179,6 +187,16 @@
             color: #ffcc00;
         }
 
+        #test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .success { background: rgba(0, 170, 0, 0.5); color: #fff; }
+        .failure { background: rgba(200, 0, 0, 0.5); color: #ffff00; }
+
         small {
             font-size: 0.8em;
             color: #aaaa00;
@@ -199,7 +217,7 @@
 
     <!-- Start Screen -->
     <div id="start-screen">
-        <h1>Christmas Elf RPG</h1>
+        <h1>Christmas Elf RPG - Fixed Proxy</h1>
         <p>It's Christmas Eve at the North Pole, and you're <strong>way behind schedule</strong>! Santa needs <strong>100 gifts</strong> ready before dawn. Can you save Christmas?</p>
 
         <label for="elf-name">Your Elf Name:</label>
@@ -208,12 +226,15 @@
         <label for="api-key">Google Gemini API Key:</label>
         <input type="text" id="api-key" placeholder="Get free at aistudio.google.com">
 
-        <label for="proxy-url">CORS Proxy URL (do not change):</label>
+        <label for="proxy-url">CORS Proxy URL (updated & fixed):</label>
         <input type="text" id="proxy-url" readonly 
-               value="https://api.allorigins.win/raw?url=https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent">
+               value="https://api.codetabs.com/v1/proxy?quest=">
+
+        <div id="test-result" style="display: none;"></div>
 
         <p><small><strong>Tip:</strong> Get your API key at <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></small></p>
 
+        <button id="test-btn" onclick="testConnection()">Test Connection</button>
         <button onclick="startGame()">Start Adventure</button>
     </div>
 
@@ -240,6 +261,49 @@
                 luck: 1
             }
         };
+
+        // Test connection
+        function testConnection() {
+            const testKey = document.getElementById('api-key').value.trim();
+            if (!testKey) {
+                showTestResult('Enter your API key first!', 'failure');
+                return;
+            }
+
+            const testResult = document.getElementById('test-result');
+            testResult.style.display = 'block';
+            testResult.textContent = 'Testing...';
+            testResult.className = '';
+
+            const testUrl = `${document.getElementById('proxy-url').value}${encodeURIComponent(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${testKey}`)}`;
+
+            fetch(testUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Test' }] }] })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showTestResult('Connected! Proxy & API key working. 🎉', 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            })
+            .catch(error => {
+                let msg = 'Failed: ';
+                if (error.message.includes('429')) msg += 'Rate limit—wait 1 min.';
+                else if (error.message.includes('401/400')) msg += 'Invalid API key—regenerate.';
+                else if (error.name === 'TypeError') msg += 'Network issue—check WiFi or VPN.';
+                else msg += error.message;
+                showTestResult(msg, 'failure');
+            });
+        }
+
+        function showTestResult(msg, type) {
+            const testResult = document.getElementById('test-result');
+            testResult.textContent = msg;
+            testResult.className = type;
+        }
 
         // Start the game
         function startGame() {
@@ -300,9 +364,10 @@ Begin the adventure now.`;
         function callGemini() {
             appendMessage('Thinking...', 'ai-message');
 
-            const url = proxyUrl + `&key=${apiKey}`;
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+            const fullUrl = `${proxyUrl}${encodeURIComponent(geminiUrl)}`;
 
-            fetch(url, {
+            fetch(fullUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -317,11 +382,20 @@ Begin the adventure now.`;
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const errorText = response.status === 429 ? 'Rate limit—wait 1 min.' : `HTTP ${response.status}`;
+                    throw new Error(errorText);
                 }
-                return response.json();
+                return response.text(); // Get as text first to handle proxy wrapping
             })
-            .then(data => {
+            .then(text => {
+                let data;
+                try {
+                    // If proxy wraps in JSON, parse it
+                    const parsed = JSON.parse(text);
+                    data = parsed.contents ? parsed : JSON.parse(parsed.contents[0]); // Adjust for proxy response
+                } catch {
+                    data = JSON.parse(text); // Direct JSON
+                }
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 removeThinking();
                 appendMessage(aiResponse, 'ai-message');
@@ -347,16 +421,12 @@ Begin the adventure now.`;
             })
             .catch(error => {
                 removeThinking();
-                let msg = 'Error: Could not reach Gemini. ';
-                if (error.message.includes('401') || error.message.includes('400')) {
-                    msg += 'Invalid API key. Check at aistudio.google.com';
-                } else if (error.message.includes('429')) {
-                    msg += 'Too many requests. Wait a minute.';
-                } else if (error.name === 'TypeError') {
-                    msg += 'Check internet or open in a real browser.';
-                } else {
-                    msg += error.message;
-                }
+                let msg = 'Error: ';
+                if (error.message.includes('429')) msg += 'Proxy rate limit—wait 1 min and retry.';
+                else if (error.message.includes('401') || error.message.includes('400')) msg += 'Invalid API key—regenerate in AI Studio.';
+                else if (error.name === 'TypeError') msg += 'Network/fetch error—check WiFi, disable VPN, or try incognito.';
+                else if (error.message.includes('HTTP')) msg += 'Proxy issue—refresh and test connection.';
+                else msg += error.message;
                 appendMessage(msg, 'ai-message error');
                 console.error(error);
             });
