@@ -3,164 +3,418 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Santa</title>
+    <title>Elf Adventure: Santa's Workshop</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
-            background-color: #f0f8ff; /* Light blue for a festive feel */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
         }
-        #santa-svg {
-            width: 200px;
+        #start-screen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        #game-canvas {
+            border: 1px solid #fff;
+            background-color: #fff;
+        }
+        #controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 5;
+        }
+        #controls button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 18px;
+        }
+        #dialogue-box {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            text-align: center;
+            z-index: 10;
+        }
+        #mini-game {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
             height: 300px;
-            cursor: pointer;
+            background-color: #fff;
+            color: #000;
+            padding: 20px;
+            text-align: center;
+            z-index: 15;
         }
-
-        /* Bounce animation for the whole Santa */
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-30px);
-            }
-            60% {
-                transform: translateY(-15px);
-            }
-        }
-        .bounce {
-            animation: bounce 2s ease-in-out;
-        }
-
-        /* Laugh animation for the mouth */
-        @keyframes laugh {
-            0% {
-                d: path("M80 120 Q100 140 120 120");
-            }
-            50% {
-                d: path("M70 120 Q100 160 130 120");
-            }
-            100% {
-                d: path("M80 120 Q100 140 120 120");
-            }
-        }
-        #mouth.laugh {
-            animation: laugh 1s ease-in-out;
-        }
-
-        /* Wave animation for the right arm */
-        @keyframes wave {
-            0% {
-                transform: rotate(0deg);
-            }
-            25% {
-                transform: rotate(45deg);
-            }
-            50% {
-                transform: rotate(0deg);
-            }
-            75% {
-                transform: rotate(45deg);
-            }
-            100% {
-                transform: rotate(0deg);
-            }
-        }
-        #right-arm.wave {
-            transform-origin: 130px 160px;
-            animation: wave 2s ease-in-out;
-        }
-
-        /* Additional animation: Dance (rotate whole body slightly) */
-        @keyframes dance {
-            0% {
-                transform: rotate(0deg);
-            }
-            25% {
-                transform: rotate(5deg);
-            }
-            50% {
-                transform: rotate(0deg);
-            }
-            75% {
-                transform: rotate(-5deg);
-            }
-            100% {
-                transform: rotate(0deg);
-            }
-        }
-        .dance {
-            animation: dance 2s ease-in-out;
+        #quest-log {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            max-width: 200px;
         }
     </style>
 </head>
 <body>
-    <svg id="santa-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
-        <!-- Face -->
-        <circle cx="100" cy="100" r="50" fill="peachpuff" id="face" />
-        
-        <!-- Eyes -->
-        <circle cx="80" cy="90" r="5" fill="black" />
-        <circle cx="120" cy="90" r="5" fill="black" />
-        
-        <!-- Nose -->
-        <circle cx="100" cy="110" r="5" fill="red" id="nose" />
-        
-        <!-- Mouth -->
-        <path id="mouth" d="M80 120 Q100 140 120 120" fill="none" stroke="black" stroke-width="2" />
-        
-        <!-- Beard -->
-        <path d="M50 130 Q100 200 150 130" fill="white" stroke="white" stroke-width="2" id="beard" />
-        
-        <!-- Hat -->
-        <polygon points="50,80 100,30 150,80" fill="red" id="hat" />
-        <circle cx="100" cy="30" r="10" fill="white" />
-        
-        <!-- Body -->
-        <rect x="70" y="150" width="60" height="100" fill="red" id="body" />
-        
-        <!-- Arms -->
-        <line id="left-arm" x1="70" y1="160" x2="40" y2="200" stroke="red" stroke-width="20" stroke-linecap="round" />
-        <line id="right-arm" x1="130" y1="160" x2="160" y2="200" stroke="red" stroke-width="20" stroke-linecap="round" />
-    </svg>
+    <div id="start-screen">
+        <h1>Welcome to Elf Adventure!</h1>
+        <p>What device are you using?</p>
+        <button onclick="startGame('pc')">PC</button>
+        <button onclick="startGame('mobile')">Mobile</button>
+    </div>
+    <canvas id="game-canvas" width="800" height="600"></canvas>
+    <div id="controls">
+        <button id="up">Up</button><br>
+        <button id="left">Left</button>
+        <button id="interact">Interact</button>
+        <button id="right">Right</button><br>
+        <button id="down">Down</button>
+    </div>
+    <div id="dialogue-box">
+        <p id="dialogue-text"></p>
+        <button onclick="nextDialogue()">Next</button>
+    </div>
+    <div id="mini-game">
+        <h2>Toy Making Mini-Game</h2>
+        <p id="mini-game-instructions"></p>
+        <div id="mini-game-area"></div>
+        <p id="mini-game-score"></p>
+        <button onclick="exitMiniGame()">Exit</button>
+    </div>
+    <div id="quest-log">
+        <h3>Current Quest</h3>
+        <p id="quest-text">No active quest</p>
+    </div>
 
     <script>
-        const santa = document.getElementById('santa-svg');
-        const mouth = document.getElementById('mouth');
-        const rightArm = document.getElementById('right-arm');
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        let controlMode = '';
+        let keys = {};
+        let touchControls = {};
 
-        // Array of possible animations
-        const animations = [
-            () => {
-                // Bounce
-                santa.classList.add('bounce');
-                setTimeout(() => santa.classList.remove('bounce'), 2000);
-            },
-            () => {
-                // Laugh
-                mouth.classList.add('laugh');
-                setTimeout(() => mouth.classList.remove('laugh'), 1000);
-            },
-            () => {
-                // Wave
-                rightArm.classList.add('wave');
-                setTimeout(() => rightArm.classList.remove('wave'), 2000);
-            },
-            () => {
-                // Dance
-                santa.classList.add('dance');
-                setTimeout(() => santa.classList.remove('dance'), 2000);
-            }
+        // Images
+        const bgImage = new Image();
+        bgImage.src = 'https://t3.ftcdn.net/jpg/03/86/29/04/360_F_386290468_4wsHjZKqqNj5BCjwJQvzmZqkYBdNJoaD.jpg'; // Santa's office background
+
+        const elfImage = new Image();
+        elfImage.src = 'https://thumbs.dreamstime.com/b/festive-full-body-image-cute-christmas-elf-toy-wears-green-outfit-gold-trim-striped-socks-red-shoes-standing-403927336.jpg';
+
+        const santaImage = new Image();
+        santaImage.src = 'https://thumbs.dreamstime.com/b/cheerful-santa-claus-figure-arms-raised-smiling-expression-dressed-classic-red-suit-white-trim-black-boots-408470299.jpg';
+
+        // Game objects
+        const player = { x: 100, y: 400, width: 50, height: 100, speed: 3, animationFrame: 0 };
+        const santa = { x: 600, y: 200, width: 100, height: 200 };
+        const workshop = { x: 200, y: 200, width: 100, height: 100 }; // Invisible interactable area
+
+        // Quests
+        const quests = [
+            { id: 1, description: 'Talk to Santa to get your first task.', completed: false },
+            { id: 2, description: 'Make a Teddy Bear at the workshop. (Mini-game: Click 10 times within 20 seconds)', completed: false, minigame: 'clicker', target: 10, time: 20 },
+            { id: 3, description: 'Collect 5 magic stars around the room.', completed: false, minigame: 'collect', target: 5 },
+            { id: 4, description: 'Make a Toy Train. (Mini-game: Match 3 colors)', completed: false, minigame: 'match', target: 3 },
+            { id: 5, description: 'Deliver toys to Santa.', completed: false },
+            { id: 6, description: 'Make a Doll. (Mini-game: Sequence memory - repeat 5 steps)', completed: false, minigame: 'sequence', target: 5 },
+            { id: 7, description: 'Fix the broken sleigh by finding parts.', completed: false, minigame: 'collect', target: 3 },
+            { id: 8, description: 'Bake cookies for reindeer. (Mini-game: Timing click)', completed: false, minigame: 'timing', target: 5 },
+            { id: 9, description: 'Wrap 10 gifts. (Mini-game: Rapid click)', completed: false, minigame: 'clicker', target: 20, time: 30 },
+            { id: 10, description: 'Help Santa with final preparations.', completed: false }
         ];
+        let currentQuestIndex = 0;
+        let inventory = { toys: 0, stars: 0, parts: 0, cookies: 0, gifts: 0 };
 
-        // On click (poke), trigger a random animation
-        santa.addEventListener('click', () => {
-            const randomIndex = Math.floor(Math.random() * animations.length);
-            animations[randomIndex]();
-        });
+        // Dialogue
+        let currentDialogue = [];
+        let dialogueIndex = 0;
+
+        // Mini-game state
+        let miniGameActive = false;
+        let miniGameType = '';
+        let miniGameTimer = 0;
+        let miniGameScore = 0;
+        let miniGameInterval;
+
+        // Collectibles
+        let stars = Array.from({length: 5}, () => ({ x: Math.random() * 700 + 50, y: Math.random() * 500 + 50, collected: false }));
+        let parts = Array.from({length: 3}, () => ({ x: Math.random() * 700 + 50, y: Math.random() * 500 + 50, collected: false }));
+
+        // Animations
+        function animatePlayer() {
+            player.animationFrame += 0.1;
+            player.y += Math.sin(player.animationFrame) * 0.5; // Bobbing animation
+        }
+
+        function animateSanta() {
+            santa.y += Math.sin(Date.now() / 1000) * 2; // Gentle bounce
+        }
+
+        function startGame(mode) {
+            controlMode = mode;
+            document.getElementById('start-screen').style.display = 'none';
+            if (mode === 'mobile') {
+                document.getElementById('controls').style.display = 'block';
+                setupTouchControls();
+            } else {
+                window.addEventListener('keydown', (e) => keys[e.key] = true);
+                window.addEventListener('keyup', (e) => keys[e.key] = false);
+            }
+            gameLoop();
+            updateQuestLog();
+        }
+
+        function setupTouchControls() {
+            document.getElementById('up').addEventListener('touchstart', () => touchControls['ArrowUp'] = true);
+            document.getElementById('up').addEventListener('touchend', () => touchControls['ArrowUp'] = false);
+            document.getElementById('down').addEventListener('touchstart', () => touchControls['ArrowDown'] = true);
+            document.getElementById('down').addEventListener('touchend', () => touchControls['ArrowDown'] = false);
+            document.getElementById('left').addEventListener('touchstart', () => touchControls['ArrowLeft'] = true);
+            document.getElementById('left').addEventListener('touchend', () => touchControls['ArrowLeft'] = false);
+            document.getElementById('right').addEventListener('touchstart', () => touchControls['ArrowRight'] = true);
+            document.getElementById('right').addEventListener('touchend', () => touchControls['ArrowRight'] = false);
+            document.getElementById('interact').addEventListener('touchstart', interact);
+        }
+
+        function handleInput() {
+            const controls = controlMode === 'pc' ? keys : touchControls;
+            if (controls['ArrowUp']) player.y -= player.speed;
+            if (controls['ArrowDown']) player.y += player.speed;
+            if (controls['ArrowLeft']) player.x -= player.speed;
+            if (controls['ArrowRight']) player.x += player.speed;
+            if (controls[' '] || controls['Enter']) interact(); // For PC
+
+            // Boundaries
+            player.x = Math.max(0, Math.min(800 - player.width, player.x));
+            player.y = Math.max(0, Math.min(600 - player.height, player.y));
+        }
+
+        function interact() {
+            if (isNear(santa)) {
+                startDialogue(getSantaDialogue());
+            } else if (isNear(workshop) && quests[currentQuestIndex].minigame) {
+                startMiniGame(quests[currentQuestIndex].minigame);
+            } else {
+                checkCollectibles();
+            }
+        }
+
+        function isNear(obj) {
+            return Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - obj.y) < 50;
+        }
+
+        function checkCollectibles() {
+            if (quests[currentQuestIndex].description.includes('Collect 5 magic stars')) {
+                stars.forEach(star => {
+                    if (!star.collected && Math.abs(player.x - star.x) < 20 && Math.abs(player.y - star.y) < 20) {
+                        star.collected = true;
+                        inventory.stars++;
+                        if (inventory.stars >= 5) completeQuest();
+                    }
+                });
+            } else if (quests[currentQuestIndex].description.includes('Fix the broken sleigh')) {
+                parts.forEach(part => {
+                    if (!part.collected && Math.abs(player.x - part.x) < 20 && Math.abs(player.y - part.y) < 20) {
+                        part.collected = true;
+                        inventory.parts++;
+                        if (inventory.parts >= 3) completeQuest();
+                    }
+                });
+            }
+        }
+
+        function getSantaDialogue() {
+            if (currentQuestIndex === 0) {
+                return ['Ho ho ho! Welcome, little elf. Your first task is to make a Teddy Bear at the workshop.'];
+            } else if (quests[currentQuestIndex - 1].completed && currentQuestIndex < quests.length) {
+                return [`Great job on the last task! Now: ${quests[currentQuestIndex].description}`];
+            } else if (currentQuestIndex === quests.length - 1) {
+                return ['Amazing work! Merry Christmas! Game Over.'];
+            }
+            return ['Keep working on your current quest!'];
+        }
+
+        function startDialogue(lines) {
+            currentDialogue = lines;
+            dialogueIndex = 0;
+            showDialogue();
+        }
+
+        function showDialogue() {
+            document.getElementById('dialogue-box').style.display = 'block';
+            document.getElementById('dialogue-text').innerText = currentDialogue[dialogueIndex];
+        }
+
+        function nextDialogue() {
+            dialogueIndex++;
+            if (dialogueIndex < currentDialogue.length) {
+                showDialogue();
+            } else {
+                document.getElementById('dialogue-box').style.display = 'none';
+                if (currentQuestIndex === 0) completeQuest(); // After first talk
+            }
+        }
+
+        function startMiniGame(type) {
+            miniGameActive = true;
+            miniGameType = type;
+            miniGameScore = 0;
+            miniGameTimer = quests[currentQuestIndex].time || 0;
+            document.getElementById('mini-game').style.display = 'block';
+            setupMiniGame();
+        }
+
+        function setupMiniGame() {
+            const instructions = document.getElementById('mini-game-instructions');
+            const area = document.getElementById('mini-game-area');
+            const score = document.getElementById('mini-game-score');
+            area.innerHTML = '';
+            if (miniGameType === 'clicker') {
+                instructions.innerText = `Click the button as many times as possible in ${miniGameTimer} seconds! Target: ${quests[currentQuestIndex].target}`;
+                const btn = document.createElement('button');
+                btn.innerText = 'Click!';
+                btn.onclick = () => { miniGameScore++; score.innerText = `Score: ${miniGameScore}`; };
+                area.appendChild(btn);
+                miniGameInterval = setInterval(() => {
+                    miniGameTimer--;
+                    if (miniGameTimer <= 0) {
+                        clearInterval(miniGameInterval);
+                        checkMiniGameSuccess();
+                    }
+                }, 1000);
+            } else if (miniGameType === 'match') {
+                instructions.innerText = 'Match the colors by clicking pairs.';
+                // Simple match game, add colored divs
+                const colors = ['red', 'blue', 'green', 'red', 'blue', 'green'];
+                colors.sort(() => Math.random() - 0.5);
+                colors.forEach(color => {
+                    const div = document.createElement('div');
+                    div.style.backgroundColor = color;
+                    div.style.width = '50px';
+                    div.style.height = '50px';
+                    div.style.display = 'inline-block';
+                    div.style.margin = '5px';
+                    div.onclick = () => { /* Match logic */ miniGameScore++; if (miniGameScore >= 3) checkMiniGameSuccess(); };
+                    area.appendChild(div);
+                });
+            } else if (miniGameType === 'sequence') {
+                instructions.innerText = 'Repeat the sequence by clicking buttons.';
+                // Add 4 buttons, flash sequence
+                for (let i = 1; i <= 4; i++) {
+                    const btn = document.createElement('button');
+                    btn.innerText = i;
+                    btn.onclick = () => { /* Check sequence */ miniGameScore++; if (miniGameScore >= 5) checkMiniGameSuccess(); };
+                    area.appendChild(btn);
+                }
+            } else if (miniGameType === 'timing') {
+                instructions.innerText = 'Click when the bar is in the green zone.';
+                // Simple bar animation
+                const bar = document.createElement('div');
+                bar.style.width = '200px';
+                bar.style.height = '20px';
+                bar.style.background = 'linear-gradient(to right, red, green, red)';
+                area.appendChild(bar);
+                const clickZone = document.createElement('button');
+                clickZone.innerText = 'Click!';
+                clickZone.onclick = () => { if (Math.random() > 0.5) miniGameScore++; if (miniGameScore >= 5) checkMiniGameSuccess(); };
+                area.appendChild(clickZone);
+            }
+            // For collect, it's in-room, no mini-game screen
+        }
+
+        function checkMiniGameSuccess() {
+            if (miniGameScore >= quests[currentQuestIndex].target) {
+                completeQuest();
+            } else {
+                alert('Try again!');
+            }
+            exitMiniGame();
+        }
+
+        function exitMiniGame() {
+            miniGameActive = false;
+            document.getElementById('mini-game').style.display = 'none';
+            clearInterval(miniGameInterval);
+        }
+
+        function completeQuest() {
+            quests[currentQuestIndex].completed = true;
+            currentQuestIndex++;
+            if (currentQuestIndex < quests.length) {
+                updateQuestLog();
+                if (quests[currentQuestIndex].description.includes('Deliver') || quests[currentQuestIndex].description.includes('Help Santa')) {
+                    inventory.toys += 1; // Example
+                }
+            } else {
+                alert('Game Completed! Merry Christmas!');
+            }
+        }
+
+        function updateQuestLog() {
+            document.getElementById('quest-text').innerText = currentQuestIndex < quests.length ? quests[currentQuestIndex].description : 'All quests done!';
+        }
+
+        function draw() {
+            ctx.drawImage(bgImage, 0, 0, 800, 600);
+            ctx.drawImage(elfImage, player.x, player.y, player.width, player.height);
+            ctx.drawImage(santaImage, santa.x, santa.y, santa.width, santa.height);
+            // Draw workshop as a rect for simplicity
+            ctx.fillStyle = 'brown';
+            ctx.fillRect(workshop.x, workshop.y, workshop.width, workshop.height);
+
+            // Draw collectibles
+            ctx.fillStyle = 'yellow';
+            stars.forEach(star => {
+                if (!star.collected) ctx.fillRect(star.x, star.y, 10, 10);
+            });
+            ctx.fillStyle = 'gray';
+            parts.forEach(part => {
+                if (!part.collected) ctx.fillRect(part.x, part.y, 10, 10);
+            });
+        }
+
+        function gameLoop() {
+            if (!miniGameActive) {
+                handleInput();
+                animatePlayer();
+                animateSanta();
+                draw();
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Wait for images to load
+        let imagesLoaded = 0;
+        const totalImages = 3;
+        function imageLoaded() {
+            imagesLoaded++;
+            if (imagesLoaded === totalImages) {
+                // Ready
+            }
+        }
+        bgImage.onload = imageLoaded;
+        elfImage.onload = imageLoaded;
+        santaImage.onload = imageLoaded;
     </script>
 </body>
 </html>
