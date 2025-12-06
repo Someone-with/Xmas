@@ -1,217 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Winter Wonderland Arcade</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Santa</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff; /* Light blue for a festive feel */
+        }
+        #santa-svg {
+            width: 200px;
+            height: 300px;
+            cursor: pointer;
+        }
 
-<style>
-body{
-  margin:0;
-  font-family:system-ui,Segoe UI,Arial;
-  background:radial-gradient(circle at top,#6cf,#045,#012);
-  color:#fff;
-  overflow-x:hidden;
-}
+        /* Bounce animation for the whole Santa */
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+        .bounce {
+            animation: bounce 2s ease-in-out;
+        }
 
-.snow span{
-  position:fixed;
-  top:-5vh;
-  color:white;
-  font-size:18px;
-  animation:fall linear infinite;
-  opacity:.9;
-}
-@keyframes fall{to{transform:translateY(110vh)}}
-.snow span:nth-child(1){left:5%;animation-duration:12s}
-.snow span:nth-child(2){left:15%;animation-duration:9s}
-.snow span:nth-child(3){left:30%;animation-duration:14s}
-.snow span:nth-child(4){left:45%;animation-duration:10s}
-.snow span:nth-child(5){left:60%;animation-duration:13s}
-.snow span:nth-child(6){left:75%;animation-duration:11s}
-.snow span:nth-child(7){left:90%;animation-duration:15s}
+        /* Laugh animation for the mouth */
+        @keyframes laugh {
+            0% {
+                d: path("M80 120 Q100 140 120 120");
+            }
+            50% {
+                d: path("M70 120 Q100 160 130 120");
+            }
+            100% {
+                d: path("M80 120 Q100 140 120 120");
+            }
+        }
+        #mouth.laugh {
+            animation: laugh 1s ease-in-out;
+        }
 
-header{
-  text-align:center;
-  padding:40px 10px;
-  background:linear-gradient(90deg,#f33,#f9c,#6cf,#3f9);
-  color:#021;
-  text-shadow:0 2px 8px #fff;
-}
+        /* Wave animation for the right arm */
+        @keyframes wave {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(45deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            75% {
+                transform: rotate(45deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+        #right-arm.wave {
+            transform-origin: 130px 160px;
+            animation: wave 2s ease-in-out;
+        }
 
-h1{margin:0;font-size:38px}
-
-.section{
-  max-width:1200px;
-  margin:auto;
-  padding:20px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:20px;
-}
-
-.card{
-  background:linear-gradient(180deg,#ffffff33,#00000044);
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 10px 30px #000;
-  border:2px solid #fff3;
-}
-
-/* CLICK TO WIN GAME */
-.win input{display:none}
-.win label{
-  display:block;
-  padding:14px;
-  background:#0ff;
-  color:#000;
-  border-radius:12px;
-  text-align:center;
-  cursor:pointer;
-  font-weight:900;
-}
-.win input:checked + label{
-  background:#2f9;
-  color:#021;
-}
-
-/* PRESENT HUNT */
-.hunt input{display:none}
-.hunt label{
-  display:inline-block;
-  font-size:32px;
-  cursor:pointer;
-  transition:.3s;
-}
-.hunt input:checked + label{
-  transform:scale(1.4);
-  filter:drop-shadow(0 0 10px gold);
-}
-
-/* REACTION TAP */
-.tap input{display:none}
-.tap label{
-  display:inline-block;
-  padding:12px 20px;
-  background:#f39;
-  border-radius:14px;
-  animation:bounce .6s infinite alternate;
-  cursor:pointer;
-}
-@keyframes bounce{to{transform:translateY(-15px)}}
-.tap input:checked + label{
-  background:#3f9;
-  animation:none;
-}
-
-/* QUIZ */
-.quiz input{display:none}
-.quiz label{
-  display:block;
-  padding:8px;
-  background:#6cf;
-  margin:6px 0;
-  border-radius:8px;
-  cursor:pointer;
-}
-.quiz input:checked + label{
-  background:#2f9;
-  color:#021;
-}
-
-/* SCRATCH */
-.scratch input{display:none}
-.scratch label{
-  display:block;
-  background:#999;
-  border-radius:12px;
-  padding:18px;
-  text-align:center;
-  cursor:pointer;
-}
-.scratch input:checked + label{
-  background:#ff0;
-  color:#000;
-}
-
-/* COLORS */
-footer{
-  text-align:center;
-  padding:20px;
-  background:linear-gradient(90deg,#f33,#fc0,#0ff,#3f9);
-  color:#021;
-  font-weight:900;
-}
-
-</style>
+        /* Additional animation: Dance (rotate whole body slightly) */
+        @keyframes dance {
+            0% {
+                transform: rotate(0deg);
+            }
+            25% {
+                transform: rotate(5deg);
+            }
+            50% {
+                transform: rotate(0deg);
+            }
+            75% {
+                transform: rotate(-5deg);
+            }
+            100% {
+                transform: rotate(0deg);
+            }
+        }
+        .dance {
+            animation: dance 2s ease-in-out;
+        }
+    </style>
 </head>
-
 <body>
+    <svg id="santa-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- Face -->
+        <circle cx="100" cy="100" r="50" fill="peachpuff" id="face" />
+        
+        <!-- Eyes -->
+        <circle cx="80" cy="90" r="5" fill="black" />
+        <circle cx="120" cy="90" r="5" fill="black" />
+        
+        <!-- Nose -->
+        <circle cx="100" cy="110" r="5" fill="red" id="nose" />
+        
+        <!-- Mouth -->
+        <path id="mouth" d="M80 120 Q100 140 120 120" fill="none" stroke="black" stroke-width="2" />
+        
+        <!-- Beard -->
+        <path d="M50 130 Q100 200 150 130" fill="white" stroke="white" stroke-width="2" id="beard" />
+        
+        <!-- Hat -->
+        <polygon points="50,80 100,30 150,80" fill="red" id="hat" />
+        <circle cx="100" cy="30" r="10" fill="white" />
+        
+        <!-- Body -->
+        <rect x="70" y="150" width="60" height="100" fill="red" id="body" />
+        
+        <!-- Arms -->
+        <line id="left-arm" x1="70" y1="160" x2="40" y2="200" stroke="red" stroke-width="20" stroke-linecap="round" />
+        <line id="right-arm" x1="130" y1="160" x2="160" y2="200" stroke="red" stroke-width="20" stroke-linecap="round" />
+    </svg>
 
-<div class="snow">
-<span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span>
-</div>
+    <script>
+        const santa = document.getElementById('santa-svg');
+        const mouth = document.getElementById('mouth');
+        const rightArm = document.getElementById('right-arm');
 
-<header>
-<h1>🎄 Winter Wonderland Arcade 🎄</h1>
-<p>Tap • Play • Win • Celebrate</p>
-</header>
+        // Array of possible animations
+        const animations = [
+            () => {
+                // Bounce
+                santa.classList.add('bounce');
+                setTimeout(() => santa.classList.remove('bounce'), 2000);
+            },
+            () => {
+                // Laugh
+                mouth.classList.add('laugh');
+                setTimeout(() => mouth.classList.remove('laugh'), 1000);
+            },
+            () => {
+                // Wave
+                rightArm.classList.add('wave');
+                setTimeout(() => rightArm.classList.remove('wave'), 2000);
+            },
+            () => {
+                // Dance
+                santa.classList.add('dance');
+                setTimeout(() => santa.classList.remove('dance'), 2000);
+            }
+        ];
 
-<div class="section">
-<div class="grid">
-
-<div class="card win">
-<h3>Click To Win</h3>
-<input type="checkbox" id="w1">
-<label for="w1">🎁 TAP TO OPEN PRESENT 🎁</label>
-<p>If it turned green, you win!</p>
-</div>
-
-<div class="card hunt">
-<h3>Present Hunt</h3>
-<input type="checkbox" id="h1"><label for="h1">🎁</label>
-<input type="checkbox" id="h2"><label for="h2">🎄</label>
-<input type="checkbox" id="h3"><label for="h3">🎁</label>
-<p>Find all the glowing presents</p>
-</div>
-
-<div class="card tap">
-<h3>Reaction Tap</h3>
-<input type="checkbox" id="t1">
-<label for="t1">TAP ME FAST</label>
-<p>If it stops bouncing, you won</p>
-</div>
-
-<div class="card quiz">
-<h3>Holiday Quiz</h3>
-<p>Who pulls Santa’s sleigh?</p>
-<input type="radio" name="q1" id="q1"><label for="q1">Reindeer ✅</label>
-<input type="radio" name="q1" id="q2"><label for="q2">Penguins</label>
-</div>
-
-<div class="card scratch">
-<h3>Scratch Prize</h3>
-<input type="checkbox" id="s1">
-<label for="s1">🎟️ SCRATCH FOR PRIZE 🎟️</label>
-<p>If it turned yellow, you won!</p>
-</div>
-
-<div class="card">
-<h3>Holiday Music</h3>
-<audio controls>
-<source src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Jingle_Bells.ogg">
-</audio>
-</div>
-
-</div>
-</div>
-
-<footer>
-❄️ Winter Wonderland Arcade ❄️
-</footer>
-
+        // On click (poke), trigger a random animation
+        santa.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * animations.length);
+            animations[randomIndex]();
+        });
+    </script>
 </body>
 </html>
