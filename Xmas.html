@@ -3,53 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Christmas Elf RPG - Fixed</title>
+    <title>Christmas Elf RPG – Gemini 2.5 Flash</title>
+
+    <!-- Full CSS Styling -->
     <style>
-        /* Full holiday background */
+        /* Page background and layout */
         body {
             margin: 0;
             padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
-            background-color: #0a1a3a;
+            background-color: #0a0a2a;
             overflow: hidden;
             height: 100vh;
+            position: relative;
         }
 
-        .background {
+        /* Animated snowfall background */
+        .snowfall-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.6"/></svg>') repeat;
-            animation: snowfall 12s linear infinite;
+            animation: snowfall-animation 12s linear infinite;
             z-index: -1;
         }
 
-        @keyframes snowfall {
+        @keyframes snowfall-animation {
             0% { background-position: 0 0; }
             100% { background-position: 0 100px; }
         }
 
-        .lights {
+        /* Twinkling Christmas lights */
+        .christmas-lights {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 0, 0.2) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 70%, rgba(0, 255, 0, 0.2) 0%, transparent 50%),
-                        radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
-            animation: twinkle 3s infinite alternate;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(0, 255, 0, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255, 0, 0, 0.2) 0%, transparent 50%);
+            animation: twinkle-animation 3s infinite alternate;
         }
 
-        @keyframes twinkle {
+        @keyframes twinkle-animation {
             0% { opacity: 0.7; }
             100% { opacity: 1; }
         }
 
-        /* Screens */
+        /* Start and Game Screens */
         #start-screen, #game-screen {
             position: absolute;
             top: 50%;
@@ -64,6 +70,7 @@
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
+        /* Title */
         h1 {
             margin: 0 0 15px;
             font-size: 2em;
@@ -71,11 +78,13 @@
             text-shadow: 0 0 10px #ff0000;
         }
 
+        /* Paragraphs */
         p {
             margin: 10px 0;
             line-height: 1.5;
         }
 
+        /* Labels */
         label {
             display: block;
             margin: 15px 0 5px;
@@ -83,6 +92,7 @@
             color: #aaffaa;
         }
 
+        /* Text inputs */
         input[type="text"] {
             width: 100%;
             padding: 12px;
@@ -100,6 +110,7 @@
             font-size: 12px;
         }
 
+        /* Buttons */
         button {
             margin: 10px 5px;
             padding: 12px 30px;
@@ -109,8 +120,8 @@
             border-radius: 8px;
             font-size: 1.1em;
             cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
         }
 
         button:hover {
@@ -118,15 +129,15 @@
             transform: scale(1.05);
         }
 
-        #test-btn {
+        #test-connection-button {
             background: #00aa00;
         }
 
-        #test-btn:hover {
+        #test-connection-button:hover {
             background: #00cc00;
         }
 
-        /* Game screen */
+        /* Chat log */
         #chat-log {
             height: 380px;
             overflow-y: auto;
@@ -139,18 +150,20 @@
             line-height: 1.6;
         }
 
+        /* User input and send button */
         #user-input {
             width: 70%;
             padding: 12px;
             font-size: 16px;
         }
 
-        #send-btn {
+        #send-button {
             width: 25%;
             padding: 12px;
             font-size: 16px;
         }
 
+        /* Message bubbles */
         .message {
             margin: 10px 0;
             padding: 8px 12px;
@@ -173,12 +186,13 @@
             border-bottom-left-radius: 0;
         }
 
-        .error {
+        .error-message {
             background: rgba(200, 0, 0, 0.5) !important;
             color: #ffff00;
         }
 
-        #stats {
+        /* Stats display */
+        #stats-display {
             margin-top: 15px;
             padding: 10px;
             background: rgba(0, 0, 0, 0.4);
@@ -187,21 +201,32 @@
             color: #ffcc00;
         }
 
+        /* Test result box */
         #test-result {
             margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
             font-weight: bold;
+            display: none;
         }
 
-        .success { background: rgba(0, 170, 0, 0.5); color: #fff; }
-        .failure { background: rgba(200, 0, 0, 0.5); color: #ffff00; }
+        .success-result {
+            background: rgba(0, 170, 0, 0.5);
+            color: #fff;
+        }
 
+        .failure-result {
+            background: rgba(200, 0, 0, 0.5);
+            color: #ffff00;
+        }
+
+        /* Small text */
         small {
             font-size: 0.8em;
             color: #aaaa00;
         }
 
+        /* Links */
         a {
             color: #00ccff;
             text-decoration: underline;
@@ -211,43 +236,47 @@
 <body>
 
     <!-- Animated Background -->
-    <div class="background">
-        <div class="lights"></div>
+    <div class="snowfall-background">
+        <div class="christmas-lights"></div>
     </div>
 
-    <!-- Start Screen -->
+    <!-- START SCREEN -->
     <div id="start-screen">
-        <h1>Christmas Elf RPG - Fixed Proxy</h1>
+        <h1>Christmas Elf RPG</h1>
         <p>It's Christmas Eve at the North Pole, and you're <strong>way behind schedule</strong>! Santa needs <strong>100 gifts</strong> ready before dawn. Can you save Christmas?</p>
 
-        <label for="elf-name">Your Elf Name:</label>
-        <input type="text" id="elf-name" placeholder="e.g. Sparkle, Jingle, Frosty">
+        <label for="elf-name-input">Your Elf Name:</label>
+        <input type="text" id="elf-name-input" placeholder="e.g. Sparkle, Jingle, Frosty">
 
-        <label for="api-key">Google Gemini API Key:</label>
-        <input type="text" id="api-key" placeholder="Get free at aistudio.google.com">
+        <label for="api-key-input">Google Gemini API Key:</label>
+        <input type="text" id="api-key-input" placeholder="Get free at aistudio.google.com">
 
-        <label for="proxy-url">CORS Proxy URL (updated & fixed):</label>
-        <input type="text" id="proxy-url" readonly 
-               value="https://api.codetabs.com/v1/proxy?quest=">
+        <label for="proxy-url-input">CORS Proxy URL (POST‑ready):</label>
+        <input type="text" id="proxy-url-input" readonly 
+               value="https://corsproxy.io/?">
 
-        <div id="test-result" style="display: none;"></div>
+        <div id="test-result"></div>
 
-        <p><small><strong>Tip:</strong> Get your API key at <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></small></p>
+        <p><small><strong>Tip:</strong> Get your API key at 
+            <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+        </small></p>
 
-        <button id="test-btn" onclick="testConnection()">Test Connection</button>
+        <button id="test-connection-button" onclick="testConnection()">Test Connection</button>
         <button onclick="startGame()">Start Adventure</button>
     </div>
 
-    <!-- Game Screen -->
+    <!-- GAME SCREEN -->
     <div id="game-screen" style="display: none;">
         <div id="chat-log"></div>
-        <input type="text" id="user-input" placeholder="What do you do next?" onkeydown="if(event.key === 'Enter') sendMessage()">
-        <button id="send-btn" onclick="sendMessage()">Send</button>
-        <div id="stats">Loading stats...</div>
+        <input type="text" id="user-input" placeholder="What do you do next?" 
+               onkeydown="if(event.key === 'Enter') sendMessage()">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+        <div id="stats-display">Loading stats...</div>
     </div>
 
+    <!-- FULL JAVASCRIPT LOGIC -->
     <script>
-        // Game state
+        // Game state variables
         let elfName = '';
         let apiKey = '';
         let proxyUrl = '';
@@ -262,54 +291,62 @@
             }
         };
 
-        // Test connection
+        // Test connection to Gemini via proxy
         function testConnection() {
-            const testKey = document.getElementById('api-key').value.trim();
+            const testKey = document.getElementById('api-key-input').value.trim();
             if (!testKey) {
-                showTestResult('Enter your API key first!', 'failure');
+                showTestResult('Please enter your API key first!', 'failure-result');
                 return;
             }
 
-            const testResult = document.getElementById('test-result');
-            testResult.style.display = 'block';
-            testResult.textContent = 'Testing...';
-            testResult.className = '';
+            const testResultElement = document.getElementById('test-result');
+            testResultElement.style.display = 'block';
+            testResultElement.textContent = 'Testing connection...';
+            testResultElement.className = '';
 
-            const testUrl = `${document.getElementById('proxy-url').value}${encodeURIComponent(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${testKey}`)}`;
+            const geminiTestUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${testKey}`;
+            const fullProxyUrl = `https://corsproxy.io/?${encodeURIComponent(geminiTestUrl)}`;
 
-            fetch(testUrl, {
+            fetch(fullProxyUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: 'Test' }] }] })
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: 'Test' }] }]
+                })
             })
             .then(response => {
                 if (response.ok) {
-                    showTestResult('Connected! Proxy & API key working. 🎉', 'success');
+                    showTestResult('Connected! Gemini 2.5 Flash is ready.', 'success-result');
                 } else {
-                    throw new Error(`HTTP ${response.status}`);
+                    return response.text().then(text => { throw new Error(`HTTP ${response.status}: ${text}`); });
                 }
             })
             .catch(error => {
-                let msg = 'Failed: ';
-                if (error.message.includes('429')) msg += 'Rate limit—wait 1 min.';
-                else if (error.message.includes('401/400')) msg += 'Invalid API key—regenerate.';
-                else if (error.name === 'TypeError') msg += 'Network issue—check WiFi or VPN.';
-                else msg += error.message;
-                showTestResult(msg, 'failure');
+                let message = 'Connection failed: ';
+                if (error.message.includes('401') || error.message.includes('400')) {
+                    message += 'Invalid API key. Regenerate it.';
+                } else if (error.message.includes('429')) {
+                    message += 'Rate limit reached. Wait 1 minute.';
+                } else if (error.name === 'TypeError') {
+                    message += 'No internet or browser blocked request. Try incognito.';
+                } else {
+                    message += error.message;
+                }
+                showTestResult(message, 'failure-result');
             });
         }
 
-        function showTestResult(msg, type) {
-            const testResult = document.getElementById('test-result');
-            testResult.textContent = msg;
-            testResult.className = type;
+        function showTestResult(message, className) {
+            const resultElement = document.getElementById('test-result');
+            resultElement.textContent = message;
+            resultElement.className = className;
         }
 
         // Start the game
         function startGame() {
-            elfName = document.getElementById('elf-name').value.trim();
-            apiKey = document.getElementById('api-key').value.trim();
-            proxyUrl = document.getElementById('proxy-url').value.trim();
+            elfName = document.getElementById('elf-name-input').value.trim();
+            apiKey = document.getElementById('api-key-input').value.trim();
+            proxyUrl = document.getElementById('proxy-url-input').value.trim();
 
             if (!elfName || !apiKey) {
                 alert('Please enter your elf name and API key!');
@@ -349,12 +386,12 @@ Begin the adventure now.`;
 
         // Send player message
         function sendMessage() {
-            const input = document.getElementById('user-input');
-            const message = input.value.trim();
+            const inputField = document.getElementById('user-input');
+            const message = inputField.value.trim();
             if (!message) return;
 
             appendMessage('You: ' + message, 'user-message');
-            input.value = '';
+            inputField.value = '';
 
             conversationHistory.push({ role: 'user', parts: [{ text: message }] });
             callGemini();
@@ -364,10 +401,10 @@ Begin the adventure now.`;
         function callGemini() {
             appendMessage('Thinking...', 'ai-message');
 
-            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-            const fullUrl = `${proxyUrl}${encodeURIComponent(geminiUrl)}`;
+            const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+            const fullProxyUrl = `https://corsproxy.io/?${encodeURIComponent(geminiApiUrl)}`;
 
-            fetch(fullUrl, {
+            fetch(fullProxyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -382,26 +419,17 @@ Begin the adventure now.`;
             })
             .then(response => {
                 if (!response.ok) {
-                    const errorText = response.status === 429 ? 'Rate limit—wait 1 min.' : `HTTP ${response.status}`;
-                    throw new Error(errorText);
+                    return response.text().then(text => { throw new Error(`HTTP ${response.status}: ${text}`); });
                 }
-                return response.text(); // Get as text first to handle proxy wrapping
+                return response.json();
             })
-            .then(text => {
-                let data;
-                try {
-                    // If proxy wraps in JSON, parse it
-                    const parsed = JSON.parse(text);
-                    data = parsed.contents ? parsed : JSON.parse(parsed.contents[0]); // Adjust for proxy response
-                } catch {
-                    data = JSON.parse(text); // Direct JSON
-                }
+            .then(data => {
                 const aiResponse = data.candidates[0].content.parts[0].text;
-                removeThinking();
+                removeThinkingMessage();
                 appendMessage(aiResponse, 'ai-message');
                 conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
 
-                // Parse stats
+                // Parse stats from AI response
                 const statsMatch = aiResponse.match(/\[Stats: Energy: (\d+), Skill: (\d+), Luck: (\d+) \| Gifts Made: (\d+)\/\d+\]/);
                 if (statsMatch) {
                     gameState.stats.energy = parseInt(statsMatch[1]);
@@ -412,45 +440,51 @@ Begin the adventure now.`;
 
                     if (gameState.giftsMade >= gameState.requiredGifts) {
                         setTimeout(() => {
-                            appendMessage('🎄🎅 CHRISTMAS IS SAVED! All gifts are ready! 🎁✨', 'ai-message');
+                            appendMessage('CHRISTMAS IS SAVED! All gifts are ready! SANTA IS COMING!', 'ai-message');
                             document.getElementById('user-input').disabled = true;
-                            document.getElementById('send-btn').disabled = true;
+                            document.getElementById('send-button').disabled = true;
                         }, 500);
                     }
                 }
             })
             .catch(error => {
-                removeThinking();
-                let msg = 'Error: ';
-                if (error.message.includes('429')) msg += 'Proxy rate limit—wait 1 min and retry.';
-                else if (error.message.includes('401') || error.message.includes('400')) msg += 'Invalid API key—regenerate in AI Studio.';
-                else if (error.name === 'TypeError') msg += 'Network/fetch error—check WiFi, disable VPN, or try incognito.';
-                else if (error.message.includes('HTTP')) msg += 'Proxy issue—refresh and test connection.';
-                else msg += error.message;
-                appendMessage(msg, 'ai-message error');
-                console.error(error);
+                removeThinkingMessage();
+                let errorMessage = 'Error: ';
+                if (error.message.includes('401') || error.message.includes('400')) {
+                    errorMessage += 'Invalid API key. Please regenerate it.';
+                } else if (error.message.includes('429')) {
+                    errorMessage += 'Rate limit reached. Please wait 1 minute.';
+                } else if (error.name === 'TypeError') {
+                    errorMessage += 'Network error. Check WiFi, disable VPN, or try incognito mode.';
+                } else {
+                    errorMessage += error.message;
+                }
+                appendMessage(errorMessage, 'ai-message error-message');
+                console.error('Gemini API Error:', error);
             });
         }
 
-        // UI Helpers
+        // Append message to chat log
         function appendMessage(text, className) {
-            const div = document.createElement('div');
-            div.className = 'message ' + className;
-            div.textContent = text;
-            document.getElementById('chat-log').appendChild(div);
-            div.scrollIntoView({ behavior: 'smooth' });
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ' + className;
+            messageDiv.textContent = text;
+            document.getElementById('chat-log').appendChild(messageDiv);
+            messageDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function removeThinking() {
-            const log = document.getElementById('chat-log');
-            const last = log.lastChild;
-            if (last && last.textContent === 'Thinking...') {
-                log.removeChild(last);
+        // Remove "Thinking..." placeholder
+        function removeThinkingMessage() {
+            const chatLog = document.getElementById('chat-log');
+            const lastMessage = chatLog.lastChild;
+            if (lastMessage && lastMessage.textContent === 'Thinking...') {
+                chatLog.removeChild(lastMessage);
             }
         }
 
+        // Update stats display
         function updateStatsDisplay() {
-            document.getElementById('stats').textContent = 
+            document.getElementById('stats-display').textContent = 
                 `Energy: ${gameState.stats.energy} | Skill: ${gameState.stats.skill} | Luck: ${gameState.stats.luck} | Gifts: ${gameState.giftsMade}/${gameState.requiredGifts}`;
         }
     </script>
