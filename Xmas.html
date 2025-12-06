@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WinterFest Wonderland</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --dark:#041322;
+  --mid:#0b2a44;
+  --light:#eaf5ff;
+  --gold:#f5d26a;
+  --green:#2fe28f;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+  color:var(--light);
+  background:linear-gradient(180deg,#020b14,#03182b,#051f36);
+  overflow-x:hidden;
+}
+
+.snow{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+.snow span{
+  position:absolute;
+  top:-10vh;
+  color:white;
+  animation:fall linear infinite;
+  opacity:.8;
+}
+@keyframes fall{to{transform:translateY(110vh)}}
+
+.starfield{
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 70% 80%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 90% 40%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 40% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 10% 90%, #fff, transparent);
+  opacity:.4;
+  animation:twinkle 6s infinite alternate;
+  z-index:0;
+}
+@keyframes twinkle{from{opacity:.3}to{opacity:.6}}
+
+main{position:relative;z-index:1}
+header{
+  text-align:center;
+  padding:40px 16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+  border-bottom:1px solid rgba(255,255,255,.08)
+}
+h1{margin:0;font-size:36px;letter-spacing:1px}
+.subtitle{opacity:.85}
+
+.section{
+  max-width:1200px;
+  margin:40px auto;
+  padding:0 16px;
+}
+.card{
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 20px 40px rgba(0,0,0,.45);
+  margin-bottom:28px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+
+footer{
+  text-align:center;
+  padding:26px;
+  opacity:.7;
+  font-size:13px;
+}
+
+.memory{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+.memory input{display:none}
+.memory label{
+  height:70px;
+  background:#0b2f4a;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  cursor:pointer;
+  transition:.3s;
+}
+.memory input:checked + label{background:#143f5f}
+
+.maze{
+  display:grid;
+  grid-template-columns:repeat(6,50px);
+  gap:6px;
+}
+.cell{width:50px;height:50px;background:#0b3049;border-radius:8px}
+.wall{background:#041826}
+.goal{background:linear-gradient(180deg,#38f29b,#19b274)}
+.start{background:linear-gradient(180deg,#ffd86b,#d1a640)}
+
+.wordsearch{
+  font-family:monospace;
+  letter-spacing:4px;
+  background:#041928;
+  padding:12px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.tictactoe{
+  display:grid;
+  grid-template-columns:repeat(3,60px);
+  gap:6px;
+}
+.tictactoe input{display:none}
+.tictactoe label{
+  width:60px;height:60px;
+  background:#0b2f4a;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  cursor:pointer;
+}
+.tictactoe input:checked + label{background:#144966;color:#2fe28f}
+
+.spinner{
+  width:120px;height:120px;
+  border-radius:50%;
+  background:conic-gradient(#f5d26a,#2fe28f,#4fd1ff,#f5d26a);
+  animation:spin 3s linear infinite;
+  margin:auto;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.tapbox{
+  width:70px;height:70px;
+  background:#2fe28f;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  color:#021311;
+  animation:move 2s infinite alternate;
+}
+@keyframes move{
+  from{transform:translateX(0)}
+  to{transform:translateX(120px)}
+}
+
+details summary{
+  cursor:pointer;
+  background:#0c3554;
+  padding:6px 10px;
+  border-radius:8px;
+  display:inline-block;
+  margin-top:6px;
+}
+
+.snow span:nth-child(1){left:5%;animation-duration:12s}
+.snow span:nth-child(2){left:15%;animation-duration:9s}
+.snow span:nth-child(3){left:25%;animation-duration:14s}
+.snow span:nth-child(4){left:40%;animation-duration:10s}
+.snow span:nth-child(5){left:55%;animation-duration:13s}
+.snow span:nth-child(6){left:70%;animation-duration:11s}
+.snow span:nth-child(7){left:85%;animation-duration:15s}
+</style>
+</head>
+
+<body>
+
+<div class="snow">
+  <span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span><span>❄️</span>
+</div>
+<div class="starfield"></div>
+
+<main>
+<header>
+  <h1>WinterFest Wonderland</h1>
+  <div class="subtitle">Games • Play • Holiday Spirit</div>
+</header>
+
+<section class="section">
+<div class="grid">
+
+<div class="card">
+<h3>Trivia</h3>
+<p>Who pulls Santa’s sleigh?</p>
+<details><summary>Answer</summary>Reindeer</details>
+</div>
+
+<div class="card">
+<h3>Memory Game</h3>
+<div class="memory">
+<input type="checkbox" id="a1"><label for="a1">🎁</label>
+<input type="checkbox" id="a2"><label for="a2">🎄</label>
+<input type="checkbox" id="a3"><label for="a3">❄️</label>
+<input type="checkbox" id="a4"><label for="a4">⭐</label>
+<input type="checkbox" id="a5"><label for="a5">🎁</label>
+<input type="checkbox" id="a6"><label for="a6">🎄</label>
+<input type="checkbox" id="a7"><label for="a7">❄️</label>
+<input type="checkbox" id="a8"><label for="a8">⭐</label>
+</div>
+</div>
+
+<div class="card">
+<h3>Tic Tac Toe</h3>
+<div class="tictactoe">
+<input type="checkbox" id="t1"><label for="t1">X</label>
+<input type="checkbox" id="t2"><label for="t2">X</label>
+<input type="checkbox" id="t3"><label for="t3">X</label>
+<input type="checkbox" id="t4"><label for="t4">X</label>
+<input type="checkbox" id="t5"><label for="t5">X</label>
+<input type="checkbox" id="t6"><label for="t6">X</label>
+<input type="checkbox" id="t7"><label for="t7">X</label>
+<input type="checkbox" id="t8"><label for="t8">X</label>
+<input type="checkbox" id="t9"><label for="t9">X</label>
+</div>
+</div>
+
+<div class="card">
+<h3>Prize Spinner</h3>
+<div class="spinner"></div>
+<p>Look away and guess where it stops.</p>
+</div>
+
+<div class="card">
+<h3>Tap The Gift</h3>
+<div class="tapbox">🎁</div>
+<p>Try to tap it before it moves again.</p>
+</div>
+
+<div class="card">
+<h3>Music</h3>
+<audio controls>
+<source src="https://upload.wikimedia.org/wikipedia/commons/4/4b/Jingle_Bells.ogg">
+</audio>
+</div>
+
+</div>
+</section>
+
+<footer>
+WinterFest Wonderland
+</footer>
+
+</main>
+</body>
+</html>
