@@ -3,418 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elf Adventure: Santa's Workshop</title>
+    <title>Christmas Elf RPG</title>
     <style>
         body {
             margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #000;
-            color: #fff;
+            padding: 0;
             font-family: Arial, sans-serif;
+            color: white;
+            background-color: #0a0a2a; /* Dark night sky */
+            overflow: hidden;
         }
-        #start-screen {
+
+        /* Animated holiday background: Snowflakes and twinkling lights */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="2" fill="white" opacity="0.5"/></svg>') repeat;
+            animation: snowfall 10s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes snowfall {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100px; }
+        }
+
+        /* Twinkling lights */
+        .lights {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,0,0.1) 0%, transparent 70%);
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        #start-screen, #game-screen {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            z-index: 10;
-        }
-        #game-canvas {
-            border: 1px solid #fff;
-            background-color: #fff;
-        }
-        #controls {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 5;
-        }
-        #controls button {
-            padding: 10px 20px;
-            margin: 5px;
-            font-size: 18px;
-        }
-        #dialogue-box {
-            display: none;
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
+            width: 80%;
+            max-width: 600px;
             padding: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            border: 2px solid #fff;
-            text-align: center;
-            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
         }
-        #mini-game {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 400px;
-            height: 300px;
-            background-color: #fff;
-            color: #000;
-            padding: 20px;
-            text-align: center;
-            z-index: 15;
-        }
-        #quest-log {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.6);
+
+        #chat-log {
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
             padding: 10px;
-            max-width: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+        }
+
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #cc0000;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .user-message {
+            text-align: right;
+            color: #00ff00;
+        }
+
+        .ai-message {
+            text-align: left;
+            color: #ffffff;
+        }
+
+        #stats {
+            margin-top: 10px;
+            font-size: 0.8em;
         }
     </style>
 </head>
 <body>
+    <div class="background">
+        <div class="lights"></div>
+    </div>
+
     <div id="start-screen">
-        <h1>Welcome to Elf Adventure!</h1>
-        <p>What device are you using?</p>
-        <button onclick="startGame('pc')">PC</button>
-        <button onclick="startGame('mobile')">Mobile</button>
+        <h1>Christmas Elf RPG</h1>
+        <p>Welcome to the North Pole! It's Christmas Eve, and you're an elf behind on gift production. Help Santa by completing quests and tasks to make all the gifts in time!</p>
+        <label for="elf-name">Enter your Elf Name:</label><br>
+        <input type="text" id="elf-name" placeholder="Elf Name"><br><br>
+        <label for="api-key">Enter your Google Gemini API Key:</label><br>
+        <input type="text" id="api-key" placeholder="API Key"><br><br>
+        <button onclick="startGame()">Start Adventure</button>
     </div>
-    <canvas id="game-canvas" width="800" height="600"></canvas>
-    <div id="controls">
-        <button id="up">Up</button><br>
-        <button id="left">Left</button>
-        <button id="interact">Interact</button>
-        <button id="right">Right</button><br>
-        <button id="down">Down</button>
-    </div>
-    <div id="dialogue-box">
-        <p id="dialogue-text"></p>
-        <button onclick="nextDialogue()">Next</button>
-    </div>
-    <div id="mini-game">
-        <h2>Toy Making Mini-Game</h2>
-        <p id="mini-game-instructions"></p>
-        <div id="mini-game-area"></div>
-        <p id="mini-game-score"></p>
-        <button onclick="exitMiniGame()">Exit</button>
-    </div>
-    <div id="quest-log">
-        <h3>Current Quest</h3>
-        <p id="quest-text">No active quest</p>
+
+    <div id="game-screen" style="display: none;">
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="What do you do next?">
+        <button onclick="sendMessage()">Send</button>
+        <div id="stats">Stats: Loading...</div>
     </div>
 
     <script>
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        let controlMode = '';
-        let keys = {};
-        let touchControls = {};
+        let elfName = '';
+        let apiKey = '';
+        let conversationHistory = [];
+        let gameState = {
+            giftsMade: 0,
+            requiredGifts: 100, // Example goal
+            stats: {
+                energy: 100,
+                skill: 1,
+                luck: 1
+            }
+        };
 
-        // Images
-        const bgImage = new Image();
-        bgImage.src = 'https://t3.ftcdn.net/jpg/03/86/29/04/360_F_386290468_4wsHjZKqqNj5BCjwJQvzmZqkYBdNJoaD.jpg'; // Santa's office background
+        function startGame() {
+            elfName = document.getElementById('elf-name').value.trim();
+            apiKey = document.getElementById('api-key').value.trim();
 
-        const elfImage = new Image();
-        elfImage.src = 'https://thumbs.dreamstime.com/b/festive-full-body-image-cute-christmas-elf-toy-wears-green-outfit-gold-trim-striped-socks-red-shoes-standing-403927336.jpg';
+            if (!elfName || !apiKey) {
+                alert('Please enter your elf name and API key!');
+                return;
+            }
 
-        const santaImage = new Image();
-        santaImage.src = 'https://thumbs.dreamstime.com/b/cheerful-santa-claus-figure-arms-raised-smiling-expression-dressed-classic-red-suit-white-trim-black-boots-408470299.jpg';
-
-        // Game objects
-        const player = { x: 100, y: 400, width: 50, height: 100, speed: 3, animationFrame: 0 };
-        const santa = { x: 600, y: 200, width: 100, height: 200 };
-        const workshop = { x: 200, y: 200, width: 100, height: 100 }; // Invisible interactable area
-
-        // Quests
-        const quests = [
-            { id: 1, description: 'Talk to Santa to get your first task.', completed: false },
-            { id: 2, description: 'Make a Teddy Bear at the workshop. (Mini-game: Click 10 times within 20 seconds)', completed: false, minigame: 'clicker', target: 10, time: 20 },
-            { id: 3, description: 'Collect 5 magic stars around the room.', completed: false, minigame: 'collect', target: 5 },
-            { id: 4, description: 'Make a Toy Train. (Mini-game: Match 3 colors)', completed: false, minigame: 'match', target: 3 },
-            { id: 5, description: 'Deliver toys to Santa.', completed: false },
-            { id: 6, description: 'Make a Doll. (Mini-game: Sequence memory - repeat 5 steps)', completed: false, minigame: 'sequence', target: 5 },
-            { id: 7, description: 'Fix the broken sleigh by finding parts.', completed: false, minigame: 'collect', target: 3 },
-            { id: 8, description: 'Bake cookies for reindeer. (Mini-game: Timing click)', completed: false, minigame: 'timing', target: 5 },
-            { id: 9, description: 'Wrap 10 gifts. (Mini-game: Rapid click)', completed: false, minigame: 'clicker', target: 20, time: 30 },
-            { id: 10, description: 'Help Santa with final preparations.', completed: false }
-        ];
-        let currentQuestIndex = 0;
-        let inventory = { toys: 0, stars: 0, parts: 0, cookies: 0, gifts: 0 };
-
-        // Dialogue
-        let currentDialogue = [];
-        let dialogueIndex = 0;
-
-        // Mini-game state
-        let miniGameActive = false;
-        let miniGameType = '';
-        let miniGameTimer = 0;
-        let miniGameScore = 0;
-        let miniGameInterval;
-
-        // Collectibles
-        let stars = Array.from({length: 5}, () => ({ x: Math.random() * 700 + 50, y: Math.random() * 500 + 50, collected: false }));
-        let parts = Array.from({length: 3}, () => ({ x: Math.random() * 700 + 50, y: Math.random() * 500 + 50, collected: false }));
-
-        // Animations
-        function animatePlayer() {
-            player.animationFrame += 0.1;
-            player.y += Math.sin(player.animationFrame) * 0.5; // Bobbing animation
-        }
-
-        function animateSanta() {
-            santa.y += Math.sin(Date.now() / 1000) * 2; // Gentle bounce
-        }
-
-        function startGame(mode) {
-            controlMode = mode;
             document.getElementById('start-screen').style.display = 'none';
-            if (mode === 'mobile') {
-                document.getElementById('controls').style.display = 'block';
-                setupTouchControls();
-            } else {
-                window.addEventListener('keydown', (e) => keys[e.key] = true);
-                window.addEventListener('keyup', (e) => keys[e.key] = false);
-            }
-            gameLoop();
-            updateQuestLog();
+            document.getElementById('game-screen').style.display = 'block';
+
+            // Initial prompt to Gemini
+            const initialPrompt = `You are the Game Master for a text-based Christmas Elf RPG. The player is an elf named ${elfName} on Christmas Eve at the North Pole. They are behind schedule and need to make ${gameState.requiredGifts} gifts before dawn to save Christmas. The game involves quests, storylines, challenges, and tasks like crafting, gathering materials, helping other elves, fighting minor obstacles (like mischievous reindeer or toy malfunctions), and more. 
+
+Track and update these stats after each response: Energy (starts at 100, decreases with actions, rest to recover), Skill (starts at 1, increases with successful tasks), Luck (starts at 1, increases with lucky events). Also track gifts made (starts at 0, goal ${gameState.requiredGifts}).
+
+Respond only in narrative text, describing the scene, outcomes, and presenting choices or asking for next action. End each response with current stats and gifts progress, like: 
+[Stats: Energy: X, Skill: Y, Luck: Z | Gifts Made: A/${gameState.requiredGifts}]
+
+If gifts reach ${gameState.requiredGifts}, end the game with a victory message. Make it fun, holiday-themed, and engaging. Keep responses concise (under 200 words).
+
+Start the game: Introduce the scenario and first quest.`;
+
+            conversationHistory.push({ role: 'user', parts: [{ text: initialPrompt }] });
+            callGemini();
         }
 
-        function setupTouchControls() {
-            document.getElementById('up').addEventListener('touchstart', () => touchControls['ArrowUp'] = true);
-            document.getElementById('up').addEventListener('touchend', () => touchControls['ArrowUp'] = false);
-            document.getElementById('down').addEventListener('touchstart', () => touchControls['ArrowDown'] = true);
-            document.getElementById('down').addEventListener('touchend', () => touchControls['ArrowDown'] = false);
-            document.getElementById('left').addEventListener('touchstart', () => touchControls['ArrowLeft'] = true);
-            document.getElementById('left').addEventListener('touchend', () => touchControls['ArrowLeft'] = false);
-            document.getElementById('right').addEventListener('touchstart', () => touchControls['ArrowRight'] = true);
-            document.getElementById('right').addEventListener('touchend', () => touchControls['ArrowRight'] = false);
-            document.getElementById('interact').addEventListener('touchstart', interact);
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (!userInput) return;
+
+            appendMessage('You: ' + userInput, 'user-message');
+            document.getElementById('user-input').value = '';
+
+            // Add to history
+            conversationHistory.push({ role: 'user', parts: [{ text: userInput }] });
+
+            callGemini();
         }
 
-        function handleInput() {
-            const controls = controlMode === 'pc' ? keys : touchControls;
-            if (controls['ArrowUp']) player.y -= player.speed;
-            if (controls['ArrowDown']) player.y += player.speed;
-            if (controls['ArrowLeft']) player.x -= player.speed;
-            if (controls['ArrowRight']) player.x += player.speed;
-            if (controls[' '] || controls['Enter']) interact(); // For PC
+        function callGemini() {
+            appendMessage('Thinking...', 'ai-message'); // Placeholder
 
-            // Boundaries
-            player.x = Math.max(0, Math.min(800 - player.width, player.x));
-            player.y = Math.max(0, Math.min(600 - player.height, player.y));
-        }
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+            const body = {
+                contents: conversationHistory,
+                generationConfig: {
+                    temperature: 0.9,
+                    topK: 1,
+                    topP: 1,
+                    maxOutputTokens: 2048,
+                },
+                safetySettings: [
+                    { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                    { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                    { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
+                    { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' }
+                ]
+            };
 
-        function interact() {
-            if (isNear(santa)) {
-                startDialogue(getSantaDialogue());
-            } else if (isNear(workshop) && quests[currentQuestIndex].minigame) {
-                startMiniGame(quests[currentQuestIndex].minigame);
-            } else {
-                checkCollectibles();
-            }
-        }
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(data => {
+                const aiResponse = data.candidates[0].content.parts[0].text;
+                // Remove placeholder
+                const chatLog = document.getElementById('chat-log');
+                chatLog.removeChild(chatLog.lastChild);
 
-        function isNear(obj) {
-            return Math.abs(player.x - obj.x) < 50 && Math.abs(player.y - obj.y) < 50;
-        }
+                appendMessage(aiResponse, 'ai-message');
 
-        function checkCollectibles() {
-            if (quests[currentQuestIndex].description.includes('Collect 5 magic stars')) {
-                stars.forEach(star => {
-                    if (!star.collected && Math.abs(player.x - star.x) < 20 && Math.abs(player.y - star.y) < 20) {
-                        star.collected = true;
-                        inventory.stars++;
-                        if (inventory.stars >= 5) completeQuest();
+                // Add to history
+                conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
+
+                // Parse and update game state (simple regex for stats)
+                const statsMatch = aiResponse.match(/\[Stats: Energy: (\d+), Skill: (\d+), Luck: (\d+) \| Gifts Made: (\d+)\/\d+\]/);
+                if (statsMatch) {
+                    gameState.stats.energy = parseInt(statsMatch[1]);
+                    gameState.stats.skill = parseInt(statsMatch[2]);
+                    gameState.stats.luck = parseInt(statsMatch[3]);
+                    gameState.giftsMade = parseInt(statsMatch[4]);
+                    updateStats();
+
+                    if (gameState.giftsMade >= gameState.requiredGifts) {
+                        appendMessage('Congratulations! All gifts are made. Christmas is saved!', 'ai-message');
+                        document.getElementById('user-input').disabled = true;
+                        document.querySelector('#game-screen button').disabled = true;
                     }
-                });
-            } else if (quests[currentQuestIndex].description.includes('Fix the broken sleigh')) {
-                parts.forEach(part => {
-                    if (!part.collected && Math.abs(player.x - part.x) < 20 && Math.abs(player.y - part.y) < 20) {
-                        part.collected = true;
-                        inventory.parts++;
-                        if (inventory.parts >= 3) completeQuest();
-                    }
-                });
-            }
-        }
-
-        function getSantaDialogue() {
-            if (currentQuestIndex === 0) {
-                return ['Ho ho ho! Welcome, little elf. Your first task is to make a Teddy Bear at the workshop.'];
-            } else if (quests[currentQuestIndex - 1].completed && currentQuestIndex < quests.length) {
-                return [`Great job on the last task! Now: ${quests[currentQuestIndex].description}`];
-            } else if (currentQuestIndex === quests.length - 1) {
-                return ['Amazing work! Merry Christmas! Game Over.'];
-            }
-            return ['Keep working on your current quest!'];
-        }
-
-        function startDialogue(lines) {
-            currentDialogue = lines;
-            dialogueIndex = 0;
-            showDialogue();
-        }
-
-        function showDialogue() {
-            document.getElementById('dialogue-box').style.display = 'block';
-            document.getElementById('dialogue-text').innerText = currentDialogue[dialogueIndex];
-        }
-
-        function nextDialogue() {
-            dialogueIndex++;
-            if (dialogueIndex < currentDialogue.length) {
-                showDialogue();
-            } else {
-                document.getElementById('dialogue-box').style.display = 'none';
-                if (currentQuestIndex === 0) completeQuest(); // After first talk
-            }
-        }
-
-        function startMiniGame(type) {
-            miniGameActive = true;
-            miniGameType = type;
-            miniGameScore = 0;
-            miniGameTimer = quests[currentQuestIndex].time || 0;
-            document.getElementById('mini-game').style.display = 'block';
-            setupMiniGame();
-        }
-
-        function setupMiniGame() {
-            const instructions = document.getElementById('mini-game-instructions');
-            const area = document.getElementById('mini-game-area');
-            const score = document.getElementById('mini-game-score');
-            area.innerHTML = '';
-            if (miniGameType === 'clicker') {
-                instructions.innerText = `Click the button as many times as possible in ${miniGameTimer} seconds! Target: ${quests[currentQuestIndex].target}`;
-                const btn = document.createElement('button');
-                btn.innerText = 'Click!';
-                btn.onclick = () => { miniGameScore++; score.innerText = `Score: ${miniGameScore}`; };
-                area.appendChild(btn);
-                miniGameInterval = setInterval(() => {
-                    miniGameTimer--;
-                    if (miniGameTimer <= 0) {
-                        clearInterval(miniGameInterval);
-                        checkMiniGameSuccess();
-                    }
-                }, 1000);
-            } else if (miniGameType === 'match') {
-                instructions.innerText = 'Match the colors by clicking pairs.';
-                // Simple match game, add colored divs
-                const colors = ['red', 'blue', 'green', 'red', 'blue', 'green'];
-                colors.sort(() => Math.random() - 0.5);
-                colors.forEach(color => {
-                    const div = document.createElement('div');
-                    div.style.backgroundColor = color;
-                    div.style.width = '50px';
-                    div.style.height = '50px';
-                    div.style.display = 'inline-block';
-                    div.style.margin = '5px';
-                    div.onclick = () => { /* Match logic */ miniGameScore++; if (miniGameScore >= 3) checkMiniGameSuccess(); };
-                    area.appendChild(div);
-                });
-            } else if (miniGameType === 'sequence') {
-                instructions.innerText = 'Repeat the sequence by clicking buttons.';
-                // Add 4 buttons, flash sequence
-                for (let i = 1; i <= 4; i++) {
-                    const btn = document.createElement('button');
-                    btn.innerText = i;
-                    btn.onclick = () => { /* Check sequence */ miniGameScore++; if (miniGameScore >= 5) checkMiniGameSuccess(); };
-                    area.appendChild(btn);
                 }
-            } else if (miniGameType === 'timing') {
-                instructions.innerText = 'Click when the bar is in the green zone.';
-                // Simple bar animation
-                const bar = document.createElement('div');
-                bar.style.width = '200px';
-                bar.style.height = '20px';
-                bar.style.background = 'linear-gradient(to right, red, green, red)';
-                area.appendChild(bar);
-                const clickZone = document.createElement('button');
-                clickZone.innerText = 'Click!';
-                clickZone.onclick = () => { if (Math.random() > 0.5) miniGameScore++; if (miniGameScore >= 5) checkMiniGameSuccess(); };
-                area.appendChild(clickZone);
-            }
-            // For collect, it's in-room, no mini-game screen
-        }
-
-        function checkMiniGameSuccess() {
-            if (miniGameScore >= quests[currentQuestIndex].target) {
-                completeQuest();
-            } else {
-                alert('Try again!');
-            }
-            exitMiniGame();
-        }
-
-        function exitMiniGame() {
-            miniGameActive = false;
-            document.getElementById('mini-game').style.display = 'none';
-            clearInterval(miniGameInterval);
-        }
-
-        function completeQuest() {
-            quests[currentQuestIndex].completed = true;
-            currentQuestIndex++;
-            if (currentQuestIndex < quests.length) {
-                updateQuestLog();
-                if (quests[currentQuestIndex].description.includes('Deliver') || quests[currentQuestIndex].description.includes('Help Santa')) {
-                    inventory.toys += 1; // Example
-                }
-            } else {
-                alert('Game Completed! Merry Christmas!');
-            }
-        }
-
-        function updateQuestLog() {
-            document.getElementById('quest-text').innerText = currentQuestIndex < quests.length ? quests[currentQuestIndex].description : 'All quests done!';
-        }
-
-        function draw() {
-            ctx.drawImage(bgImage, 0, 0, 800, 600);
-            ctx.drawImage(elfImage, player.x, player.y, player.width, player.height);
-            ctx.drawImage(santaImage, santa.x, santa.y, santa.width, santa.height);
-            // Draw workshop as a rect for simplicity
-            ctx.fillStyle = 'brown';
-            ctx.fillRect(workshop.x, workshop.y, workshop.width, workshop.height);
-
-            // Draw collectibles
-            ctx.fillStyle = 'yellow';
-            stars.forEach(star => {
-                if (!star.collected) ctx.fillRect(star.x, star.y, 10, 10);
-            });
-            ctx.fillStyle = 'gray';
-            parts.forEach(part => {
-                if (!part.collected) ctx.fillRect(part.x, part.y, 10, 10);
+            })
+            .catch(error => {
+                appendMessage('Error: Could not connect to Gemini. Check API key or network.', 'ai-message');
+                console.error(error);
             });
         }
 
-        function gameLoop() {
-            if (!miniGameActive) {
-                handleInput();
-                animatePlayer();
-                animateSanta();
-                draw();
-            }
-            requestAnimationFrame(gameLoop);
+        function appendMessage(text, className) {
+            const div = document.createElement('div');
+            div.className = 'message ' + className;
+            div.textContent = text;
+            document.getElementById('chat-log').appendChild(div);
+            div.scrollIntoView();
         }
 
-        // Wait for images to load
-        let imagesLoaded = 0;
-        const totalImages = 3;
-        function imageLoaded() {
-            imagesLoaded++;
-            if (imagesLoaded === totalImages) {
-                // Ready
-            }
+        function updateStats() {
+            document.getElementById('stats').textContent = `Stats: Energy: ${gameState.stats.energy}, Skill: ${gameState.stats.skill}, Luck: ${gameState.stats.luck} | Gifts Made: ${gameState.giftsMade}/${gameState.requiredGifts}`;
         }
-        bgImage.onload = imageLoaded;
-        elfImage.onload = imageLoaded;
-        santaImage.onload = imageLoaded;
     </script>
 </body>
 </html>
